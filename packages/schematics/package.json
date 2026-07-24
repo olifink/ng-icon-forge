@@ -1,6 +1,6 @@
 {
   "name": "ng-icon-forge",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "ng add ng-icon-forge — generates Angular PWA icon assets from a source SVG and merges them into manifest.webmanifest, ngsw-config.json, and index.html.",
   "license": "MIT",
   "author": "Oliver Fink",
