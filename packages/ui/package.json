@@ -1,6 +1,8 @@
 {
   "name": "@ng-icon-forge/ui",
   "version": "0.0.0",
+  "license": "MIT",
+  "author": "Oliver Fink",
   "scripts": {
     "ng": "ng",
     "prestart": "npm run copy-wasm",

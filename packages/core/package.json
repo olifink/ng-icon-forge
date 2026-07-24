@@ -3,6 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "description": "Pure TS SVG rasterization and Angular PWA icon-set generation, no I/O and no Angular/Tree knowledge.",
+  "license": "MIT",
+  "author": "Oliver Fink",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

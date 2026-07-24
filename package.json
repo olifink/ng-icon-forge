@@ -3,6 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "description": "SVG -> Angular PWA icon asset generator (monorepo root)",
+  "license": "MIT",
+  "author": "Oliver Fink",
   "workspaces": [
     "packages/*"
   ],
