@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "SchematicsNgIconForgeNgAdd",
+  "title": "ng-icon-forge ng-add options",
+  "type": "object",
+  "description": "Generates Angular PWA icon assets from a source SVG and merges them into manifest.webmanifest, ngsw-config.json, and index.html.",
+  "properties": {
+    "svg": {
+      "type": "string",
+      "description": "Path to the source SVG file to generate the icon set from.",
+      "x-prompt": "Path to the source SVG file:"
+    },
+    "project": {
+      "type": "string",
+      "description": "The name of the project to add icons to. Required when the workspace has more than one project.",
+      "$default": {
+        "$source": "projectName"
+      }
+    },
+    "maskablePadding": {
+      "type": "number",
+      "description": "Safe-zone padding percentage (applied per side) for the maskable manifest icons.",
+      "default": 20
+    },
+    "bg": {
+      "type": "string",
+      "description": "Background color used to flatten the apple-touch-icon (iOS ignores alpha) and to fill the maskable icon canvas.",
+      "default": "#ffffff"
+    }
+  },
+  "required": ["svg"]
+}

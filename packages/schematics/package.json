@@ -1,0 +1,38 @@
+{
+  "name": "ng-icon-forge",
+  "version": "0.0.0",
+  "description": "ng add ng-icon-forge — generates Angular PWA icon assets from a source SVG and merges them into manifest.webmanifest, ngsw-config.json, and index.html.",
+  "type": "module",
+  "schematics": "./collection.json",
+  "ng-add": {
+    "save": false
+  },
+  "files": [
+    "collection.json",
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && cp src/ng-add/schema.json dist/ng-add/schema.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "pretest": "npm run build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ng-icon-forge/core": "0.0.0",
+    "@angular-devkit/schematics": "^22.0.8",
+    "@resvg/resvg-wasm": "^2.6.2",
+    "@schematics/angular": "^22.0.8",
+    "parse5-html-rewriting-stream": "^8.0.1"
+  },
+  "devDependencies": {
+    "@angular-devkit/core": "^22.0.8"
+  },
+  "peerDependencies": {
+    "@angular/cli": "^22.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@angular/cli": {
+      "optional": true
+    }
+  }
+}
