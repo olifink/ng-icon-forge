@@ -30,9 +30,32 @@ npx tsc -p tsconfig.json --noEmit   # typecheck only that package
 
 `packages/schematics` tests run against **compiled `dist/`** output (the schematics engine loads
 the factory as JS via `collection.json`, not TS directly) — its `test` script has a `pretest` that
-runs `npm run build` first, which also copies `schema.json` into `dist/ng-add/` since `tsc` doesn't
-copy non-TS assets. If you edit schema.json/collection.json and tests don't pick up the change,
-check `dist/` was rebuilt.
+runs `npm run build` first. If you edit schema.json/collection.json/source and tests don't pick up
+the change, check `dist/` was rebuilt.
+
+`packages/schematics`'s `build` script (`scripts/build.mjs`) bundles `src/ng-add/index.ts` with
+**esbuild**, not plain `tsc` — deliberately, so `@ng-icon-forge/core` (a workspace-only package,
+version `"0.0.0"`, never published) gets inlined directly into `dist/ng-add/index.js` rather than
+staying an external import. Without this, the published `ng-icon-forge` package would declare a
+runtime dependency nothing on the public registry could satisfy. Everything else genuinely external
+(`@angular-devkit/schematics`, `@schematics/angular/utility`, `@resvg/resvg-wasm`,
+`parse5-html-rewriting-stream`) is passed as an esbuild `external` and stays a real
+`dependencies` entry, resolved normally from the consumer's own `node_modules` — in
+`@angular-devkit/schematics`'s case specifically so it resolves to whatever version the user's own
+Angular CLI toolchain provides, not a bundled copy that could drift from it. `@ng-icon-forge/core`
+itself moved from `dependencies` to `devDependencies` in `packages/schematics/package.json`
+accordingly — it's a build-time/typecheck-time-only input now, never a runtime one. If you add a
+new import to schematics' source, check whether it needs adding to the `external` list in
+`scripts/build.mjs` (anything that should stay a real npm dependency does) or should be left alone
+to get bundled (only true for other future workspace-only packages, if any).
+
+Verifying this stays broken-dependency-free isn't optional — `npm pack --dry-run` alone doesn't
+catch it, since workspace symlinks make `@ng-icon-forge/core` resolvable locally even if the
+published tarball's `package.json` doesn't declare it. The real test: `npm pack`, `npm install
+<tarball>` into a directory with no relation to this monorepo (so there's no workspace symlink to
+fall back on), and run the resulting `collection.json` schematic against a real scaffolded
+project. That's what caught this issue in the first place and is worth repeating after any change
+to schematics' dependencies.
 
 To sanity-check the schematic against a real Angular workspace (beyond the fixture-tree unit
 tests): scaffold a throwaway app with `npx @angular/cli new <name> --skip-install --skip-git`,

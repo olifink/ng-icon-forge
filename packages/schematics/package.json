@@ -35,20 +35,21 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json && cp src/ng-add/schema.json dist/ng-add/schema.json",
+    "build": "node scripts/build.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "pretest": "npm run build",
     "test": "vitest run"
   },
   "dependencies": {
-    "@ng-icon-forge/core": "0.0.0",
     "@angular-devkit/schematics": "^22.0.8",
     "@resvg/resvg-wasm": "^2.6.2",
     "@schematics/angular": "^22.0.8",
     "parse5-html-rewriting-stream": "^8.0.1"
   },
   "devDependencies": {
-    "@angular-devkit/core": "^22.0.8"
+    "@angular-devkit/core": "^22.0.8",
+    "@ng-icon-forge/core": "0.0.0",
+    "esbuild": "^0.28.1"
   },
   "peerDependencies": {
     "@angular/cli": "^22.0.0"
