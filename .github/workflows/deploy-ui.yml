@@ -34,11 +34,13 @@ jobs:
 
       - run: npm ci
 
+      # ui and schematics both depend on core's compiled dist/ output (a workspace dependency,
+      # resolved via core's package.json "exports"), so typecheck/test would fail with
+      # "Cannot find module '@ng-icon-forge/core'" if this ran after them.
+      - run: npm run build -w @ng-icon-forge/core
+
       - run: npm run typecheck
       - run: npm run test
-
-      # ui depends on core's compiled dist/ output (workspace dependency), so build it first.
-      - run: npm run build -w @ng-icon-forge/core
 
       - name: Copy resvg wasm asset
         working-directory: packages/ui
