@@ -1,22 +1,8 @@
 import { SchematicsException, type Tree } from '@angular-devkit/schematics';
-
-/**
- * Name of the assetGroups entry ng-icon-forge owns exclusively. Kept separate from
- * whatever pre-existing groups (e.g. the default "app"/"assets" groups from
- * `ng add @angular/pwa`) so this merge only ever touches its own entry.
- */
-const MANAGED_GROUP_NAME = 'ng-icon-forge-icons';
-
-interface AssetGroup {
-  name: string;
-  installMode?: string;
-  updateMode?: string;
-  resources: { files?: string[]; urls?: string[] };
-  [key: string]: unknown;
-}
+import { NGSW_ICON_ASSET_GROUP_NAME, getNgswIconAssetGroup, type NgswAssetGroup } from '@ng-icon-forge/core';
 
 interface NgswConfig {
-  assetGroups?: AssetGroup[];
+  assetGroups?: NgswAssetGroup[];
   [key: string]: unknown;
 }
 
@@ -28,6 +14,9 @@ interface NgswConfig {
  * erroring, ownership just goes to whichever group is first in array order (see
  * @angular/service-worker's config generator), which is why the group is unshifted to the
  * front — so it deterministically claims these paths even if another group's glob also matches.
+ *
+ * The group's shape comes from `core.getNgswIconAssetGroup` — the same helper the ui package's
+ * ZIP export uses for its standalone ngsw-config-icons.json fragment, so both consumers agree.
  */
 export function mergeNgswConfigIcons(tree: Tree, ngswConfigPath: string, iconWebPaths: string[]): void {
   if (!tree.exists(ngswConfigPath)) {
@@ -48,14 +37,8 @@ export function mergeNgswConfigIcons(tree: Tree, ngswConfigPath: string, iconWeb
     throw new SchematicsException(`"${ngswConfigPath}" has no "assetGroups" array to merge icon entries into.`);
   }
 
-  const managedGroup: AssetGroup = {
-    name: MANAGED_GROUP_NAME,
-    installMode: 'lazy',
-    updateMode: 'prefetch',
-    resources: { files: [...iconWebPaths].sort() },
-  };
-
-  const existingIndex = config.assetGroups.findIndex((group) => group.name === MANAGED_GROUP_NAME);
+  const managedGroup = getNgswIconAssetGroup(iconWebPaths);
+  const existingIndex = config.assetGroups.findIndex((group) => group.name === NGSW_ICON_ASSET_GROUP_NAME);
   if (existingIndex === -1) {
     config.assetGroups.unshift(managedGroup);
   } else {

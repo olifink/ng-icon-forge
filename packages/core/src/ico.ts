@@ -1,6 +1,6 @@
 export interface IcoImage {
   size: number;
-  png: Buffer;
+  png: Uint8Array;
 }
 
 const ICO_HEADER_SIZE = 6;
@@ -10,30 +10,37 @@ const ICO_DIR_ENTRY_SIZE = 16;
  * Packs PNG-encoded images into a multi-resolution .ico container. Modern Windows,
  * browsers, and OSes all accept PNG-format image data inside ICO directory entries
  * (no BMP/DIB re-encoding needed), which keeps this dependency-free.
+ *
+ * Built on plain Uint8Array/DataView rather than Node's Buffer, since core has no Node
+ * dependency and needs to run identically in the browser (see wasm.ts) — a Buffer here
+ * would require a polyfill for the ui package.
  */
-export function encodeIco(images: IcoImage[]): Buffer {
+export function encodeIco(images: IcoImage[]): Uint8Array {
   let offset = ICO_HEADER_SIZE + ICO_DIR_ENTRY_SIZE * images.length;
+  const totalSize = offset + images.reduce((sum, image) => sum + image.png.length, 0);
 
-  const header = Buffer.alloc(ICO_HEADER_SIZE);
-  header.writeUInt16LE(0, 0); // reserved, must be 0
-  header.writeUInt16LE(1, 2); // image type: 1 = icon
-  header.writeUInt16LE(images.length, 4);
+  const out = new Uint8Array(totalSize);
+  const view = new DataView(out.buffer);
 
-  const dirEntries: Buffer[] = [];
-  for (const { size, png } of images) {
-    const entry = Buffer.alloc(ICO_DIR_ENTRY_SIZE);
+  view.setUint16(0, 0, true); // reserved, must be 0
+  view.setUint16(2, 1, true); // image type: 1 = icon
+  view.setUint16(4, images.length, true);
+
+  for (const [index, { size, png }] of images.entries()) {
+    const entryOffset = ICO_HEADER_SIZE + index * ICO_DIR_ENTRY_SIZE;
     const dim = size >= 256 ? 0 : size; // 0 encodes 256px per the ICO spec
-    entry.writeUInt8(dim, 0); // width
-    entry.writeUInt8(dim, 1); // height
-    entry.writeUInt8(0, 2); // color palette count (0 = no palette)
-    entry.writeUInt8(0, 3); // reserved
-    entry.writeUInt16LE(1, 4); // color planes
-    entry.writeUInt16LE(32, 6); // bits per pixel
-    entry.writeUInt32LE(png.length, 8); // image data size
-    entry.writeUInt32LE(offset, 12); // offset of image data from file start
-    dirEntries.push(entry);
+    view.setUint8(entryOffset, dim); // width
+    view.setUint8(entryOffset + 1, dim); // height
+    view.setUint8(entryOffset + 2, 0); // color palette count (0 = no palette)
+    view.setUint8(entryOffset + 3, 0); // reserved
+    view.setUint16(entryOffset + 4, 1, true); // color planes
+    view.setUint16(entryOffset + 6, 32, true); // bits per pixel
+    view.setUint32(entryOffset + 8, png.length, true); // image data size
+    view.setUint32(entryOffset + 12, offset, true); // offset of image data from file start
+
+    out.set(png, offset);
     offset += png.length;
   }
 
-  return Buffer.concat([header, ...dirEntries, ...images.map((image) => image.png)]);
+  return out;
 }

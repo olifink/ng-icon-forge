@@ -1,0 +1,11 @@
+<figure class="tile">
+  <div class="image-frame">
+    @if (imageUrl(); as url) {
+      <img [src]="url" [alt]="label()" />
+    }
+    @if (showSafeZone()) {
+      <div class="safe-zone-circle" aria-hidden="true"></div>
+    }
+  </div>
+  <figcaption>{{ label() }}</figcaption>
+</figure>

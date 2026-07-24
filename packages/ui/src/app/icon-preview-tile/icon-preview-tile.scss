@@ -1,0 +1,44 @@
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.image-frame {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  border-radius: 12px;
+  overflow: hidden;
+  background:
+    linear-gradient(45deg, var(--mat-sys-surface-container) 25%, transparent 25%) -8px 0 / 16px 16px,
+    linear-gradient(-45deg, var(--mat-sys-surface-container) 25%, transparent 25%) -8px 0 / 16px 16px,
+    linear-gradient(45deg, transparent 75%, var(--mat-sys-surface-container) 75%) -8px 0 / 16px 16px,
+    linear-gradient(-45deg, transparent 75%, var(--mat-sys-surface-container) 75%) -8px 0 / 16px 16px;
+  background-color: var(--mat-sys-surface);
+}
+
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+// Android's adaptive-icon safe zone: content within this circle survives any mask shape
+// (circle, squircle, rounded square, ...) the OS applies. Fixed at the spec's 66% diameter,
+// independent of the user's chosen padding, so it always reads as a reference guide.
+.safe-zone-circle {
+  position: absolute;
+  inset: 17%;
+  border-radius: 50%;
+  border: 1.5px dashed color-mix(in srgb, var(--mat-sys-error) 80%, transparent);
+  pointer-events: none;
+}
+
+figcaption {
+  font: var(--mat-sys-label-small);
+  color: var(--mat-sys-on-surface-variant);
+  white-space: nowrap;
+}

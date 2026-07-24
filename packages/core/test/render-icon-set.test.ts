@@ -7,13 +7,14 @@ import { renderIconSet } from '../src/render-icon-set.js';
 const fixturePath = fileURLToPath(new URL('./fixtures/sample-icon.svg', import.meta.url));
 const sampleSvg = readFileSync(fixturePath, 'utf-8');
 
-const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const PNG_MAGIC = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
-function readPngDimensions(png: Buffer): { width: number; height: number } {
+function readPngDimensions(png: Uint8Array): { width: number; height: number } {
   // IHDR chunk starts right after the 8-byte signature + 4-byte length + 4-byte "IHDR" type.
+  const view = new DataView(png.buffer, png.byteOffset, png.byteLength);
   return {
-    width: png.readUInt32BE(16),
-    height: png.readUInt32BE(20),
+    width: view.getUint32(16, false),
+    height: view.getUint32(20, false),
   };
 }
 
@@ -65,10 +66,11 @@ describe('renderIconSet', () => {
   it('produces a favicon.ico with a valid ICO header for 3 images', () => {
     const result = renderIconSet(sampleSvg);
     const ico = result.get('public/favicon.ico')!;
+    const view = new DataView(ico.buffer, ico.byteOffset, ico.byteLength);
 
-    expect(ico.readUInt16LE(0)).toBe(0); // reserved
-    expect(ico.readUInt16LE(2)).toBe(1); // type: icon
-    expect(ico.readUInt16LE(4)).toBe(3); // image count: 16, 32, 48
+    expect(view.getUint16(0, true)).toBe(0); // reserved
+    expect(view.getUint16(2, true)).toBe(1); // type: icon
+    expect(view.getUint16(4, true)).toBe(3); // image count: 16, 32, 48
   });
 
   it('accepts raw bytes as well as a string', () => {

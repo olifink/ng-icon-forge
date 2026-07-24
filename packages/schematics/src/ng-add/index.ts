@@ -74,7 +74,10 @@ export default function ngAdd(options: Schema): Rule {
     const paths = await resolveProjectPaths(tree, options.project);
     const icons = renderIconSet(svgBuffer, config);
 
-    for (const [corePath, buffer] of icons) {
+    for (const [corePath, pngBytes] of icons) {
+      // core returns plain Uint8Array (no Node dependency — see render-icon-set.ts); Tree.create/
+      // overwrite specifically require Buffer, so convert at this Node-specific boundary only.
+      const buffer = Buffer.from(pngBytes);
       const workspacePath = toWorkspacePath(corePath, paths.publicDir);
       if (tree.exists(workspacePath)) {
         tree.overwrite(workspacePath, buffer);

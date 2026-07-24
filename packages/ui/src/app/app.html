@@ -1,0 +1,103 @@
+<mat-toolbar color="primary">
+  <span class="app-title">ng-icon-forge</span>
+  <span class="app-subtitle">SVG → Angular PWA icon set</span>
+</mat-toolbar>
+
+<main>
+  @if (iconForge.wasmError(); as message) {
+    <p class="banner banner-error">
+      <mat-icon>error</mat-icon>
+      Couldn't load the renderer: {{ message }}
+    </p>
+  } @else if (!iconForge.wasmReady()) {
+    <p class="banner">
+      <mat-spinner diameter="20" />
+      Loading renderer…
+    </p>
+  }
+
+  <mat-card
+    class="drop-zone"
+    [class.dragging]="isDragging()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+    (drop)="onDrop($event)"
+  >
+    <mat-icon>upload_file</mat-icon>
+    @if (svg(); as loaded) {
+      <p>{{ loaded.fileName }}</p>
+      <p class="hint">Drop a different SVG to replace it</p>
+    } @else {
+      <p>Drag &amp; drop an SVG here</p>
+      <p class="hint">or</p>
+    }
+    <label class="browse-button">
+      <input type="file" accept=".svg,image/svg+xml" (change)="onFileInputChange($event)" />
+      <span mat-stroked-button role="button">Choose file</span>
+    </label>
+  </mat-card>
+
+  @if (renderResult(); as result) {
+    @if (result.status === 'error') {
+      <p class="banner banner-error">
+        <mat-icon>error</mat-icon>
+        {{ result.message }}
+      </p>
+    }
+  }
+
+  <mat-card class="config-panel">
+    <mat-form-field appearance="outline">
+      <mat-label>App name</mat-label>
+      <input matInput [value]="appName()" (input)="onAppNameInput($event)" />
+      <mat-hint>Used for manifest.webmanifest's name / short_name</mat-hint>
+    </mat-form-field>
+
+    <div class="config-row">
+      <label for="background-input">Background</label>
+      <input
+        id="background-input"
+        type="color"
+        [value]="background()"
+        (input)="onBackgroundInput($event)"
+      />
+      <span class="hint">Apple touch icon flattening + maskable canvas fill</span>
+    </div>
+
+    <div class="config-row">
+      <label for="padding-slider">Maskable safe-zone padding: {{ maskablePadding() }}%</label>
+      <mat-slider id="padding-slider" min="0" max="40" step="1" discrete>
+        <input matSliderThumb [value]="maskablePadding()" (input)="onMaskablePaddingInput($event)" />
+      </mat-slider>
+    </div>
+
+    <mat-slide-toggle [checked]="showSafeZone()" (change)="onShowSafeZoneChange($event.checked)">
+      Show safe-zone guide (66% circle) on maskable icons
+    </mat-slide-toggle>
+  </mat-card>
+
+  @if (previewTiles().length > 0) {
+    <mat-card class="preview-panel">
+      <h2>Preview</h2>
+      <div class="tile-grid">
+        @for (tile of previewTiles(); track tile.key) {
+          <app-icon-preview-tile
+            [label]="tile.label"
+            [pngBytes]="tile.pngBytes"
+            [showSafeZone]="tile.isMaskable && showSafeZone()"
+          />
+        }
+      </div>
+      <p class="hint">Plus favicon.ico (multi-res {{ faviconSizesLabel }})</p>
+
+      <button mat-flat-button color="primary" [disabled]="isZipping()" (click)="downloadZip()">
+        @if (isZipping()) {
+          <mat-spinner diameter="18" />
+        } @else {
+          <mat-icon>download</mat-icon>
+        }
+        Download ZIP
+      </button>
+    </mat-card>
+  }
+</main>

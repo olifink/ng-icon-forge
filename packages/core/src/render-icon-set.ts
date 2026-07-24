@@ -4,12 +4,12 @@ import { encodeIco } from './ico.js';
 import { wrapMaskable } from './svg-utils.js';
 import type { IconForgeConfig } from './types.js';
 
-function rasterize(svgString: string, size: number, background?: string): Buffer {
+function rasterize(svgString: string, size: number, background?: string): Uint8Array {
   const resvg = new Resvg(svgString, {
     fitTo: { mode: 'width', value: size },
     background,
   });
-  return Buffer.from(resvg.render().asPng());
+  return resvg.render().asPng();
 }
 
 /**
@@ -18,12 +18,17 @@ function rasterize(svgString: string, size: number, background?: string): Buffer
  * to mirror the fact that rasterization itself needs no I/O once the WASM module is loaded.
  *
  * Returns a Map keyed by path relative to the workspace root (i.e. already namespaced
- * under "public/"), ready for either `Tree` writes (schematics) or ZIP entries (ui).
+ * under "public/"), ready for either `Tree` writes (schematics, which wrap each value in a
+ * `Buffer` at that Node-specific boundary) or ZIP entries (ui) — the values themselves are
+ * plain Uint8Array, since core has no Node dependency and must run in the browser too.
  */
-export function renderIconSet(svg: string | Uint8Array, config: Partial<IconForgeConfig> = {}): Map<string, Buffer> {
+export function renderIconSet(
+  svg: string | Uint8Array,
+  config: Partial<IconForgeConfig> = {},
+): Map<string, Uint8Array> {
   const resolvedConfig: IconForgeConfig = { ...DEFAULT_CONFIG, ...config };
-  const svgString = typeof svg === 'string' ? svg : Buffer.from(svg).toString('utf-8');
-  const output = new Map<string, Buffer>();
+  const svgString = typeof svg === 'string' ? svg : new TextDecoder().decode(svg);
+  const output = new Map<string, Uint8Array>();
 
   for (const size of ICON_SIZES) {
     output.set(`public/icons/icon-${size}x${size}.png`, rasterize(svgString, size));
