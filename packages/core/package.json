@@ -1,0 +1,23 @@
+{
+  "name": "@ng-icon-forge/core",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Pure TS SVG rasterization and Angular PWA icon-set generation, no I/O and no Angular/Tree knowledge.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@resvg/resvg-wasm": "^2.6.2"
+  }
+}
