@@ -1,5 +1,7 @@
 # ng-icon-forge
 
+[![npm version](https://img.shields.io/npm/v/ng-icon-forge.svg)](https://www.npmjs.com/package/ng-icon-forge)
+
 Generate a full Angular PWA icon set from a single SVG and merge it directly into your workspace
 via `ng add`.
 

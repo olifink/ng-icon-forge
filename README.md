@@ -1,5 +1,6 @@
 # ng-icon-forge
 
+[![npm version](https://img.shields.io/npm/v/ng-icon-forge.svg)](https://www.npmjs.com/package/ng-icon-forge)
 [![Deploy ui to GitHub Pages](https://github.com/olifink/ng-icon-forge/actions/workflows/deploy-ui.yml/badge.svg)](https://github.com/olifink/ng-icon-forge/actions/workflows/deploy-ui.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
